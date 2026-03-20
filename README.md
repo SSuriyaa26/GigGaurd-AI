@@ -493,7 +493,7 @@ Parametric automation means 90% of payouts require zero human intervention. Week
 
 > [Will be uploaded to YouTube as an unlisted link before March 20, 2026 EOD]
 >
-> The video covers: Karthik's story in 20 seconds, live onboarding and risk score walkthrough, weekly policy purchase with premium breakdown, rain trigger simulation showing auto-claim and payout in under 90 seconds, and dashboard update confirming Rs. 480 protected.
+> The video covers:Live onboarding and risk score walkthrough, weekly policy purchase with premium breakdown, rain trigger simulation showing auto-claim and payout in under 90 seconds, and dashboard update confirming Rs. 480 protected.
 
 ---
 
@@ -501,15 +501,11 @@ Parametric automation means 90% of payouts require zero human intervention. Week
 
 | Item | Link |
 |---|---|
-| GitHub Repository | `[https://github.com/team-gigguard/gigguard-ai]` *(public by March 18)* |
-| Phase 1 Demo Video | `[YouTube unlisted link — added by March 20]` |
-| Figma Prototype | `[Link to be added]` |
+| GitHub Repository | `[https://github.com/team-gigguard/gigguard-ai]` ** |
+| Phase 1 Demo Video | `[[YouTube unlisted link — added by March 20]](https://youtu.be/B1uT4dOuXXc)` |
+| Prototype | `[[Link to be added](https://giggaurdai.vercel.app/)]` |
 
 Phase 2 (March 21 to April 4): live parametric trigger engine with real API polling, Razorpay payout integration with actual test-mode UPI disbursement, and the full Coherence Score pipeline running on real sensor data from the mobile app.
 
 ---
 
-<p align="center">
-  <strong>Built for India's gig workers, because their hustle deserves a safety net.</strong><br/>
-  <em>Guidewire DEVTrails 2026 | Phase 1 Submission | Team GigGuard AI</em>
-</p>
