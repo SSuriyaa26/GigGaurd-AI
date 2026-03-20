@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GigGuard AI — Income Shield for Delivery Heroes</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Noto+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #0f1217;
+    --panel: #141820;
+    --panel2: #1a2030;
+    --border: #1e2a3a;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #00ff88;
+    --accent4: #ffd93d;
+    --text: #e8edf5;
+    --text2: #8899bb;
+    --text3: #556070;
+    --red: #ff4560;
+    --yellow: #ffd93d;
+    --green: #00ff88;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; position: relative; z-index: 1; }
+  .screen.active { display: block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* ─── NAV ─── */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,12,15,0.97);
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 100;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px; font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+  .nav-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    padding: 3px 8px; border-radius: 20px;
+  }
+  /* Nav tabs scroll horizontally on small screens instead of wrapping */
+  .nav-tabs {
+    display: flex; gap: 3px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; flex-shrink: 1;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 1px;
+    padding: 6px 11px; border-radius: 6px;
+    border: 1px solid transparent;
+    background: none; color: var(--text2);
+    cursor: pointer; transition: all 0.2s;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--text); border-color: var(--border); }
+  .nav-tab.active { color: var(--accent); border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.08); }
+  /* Adversarial tab gets a distinct warning colour to signal urgency */
+  .nav-tab[data-tab="adversarial"] { color: var(--red); }
+  .nav-tab[data-tab="adversarial"].active { color: var(--red); border-color: rgba(255,69,96,0.4); background: rgba(255,69,96,0.08); }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 72px 24px 56px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px; letter-spacing: 3px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: inline-block;
+    border: 1px solid rgba(255,107,53,0.3);
+    padding: 4px 14px; border-radius: 20px;
+    background: rgba(255,107,53,0.08);
+  }
+  .hero h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(36px, 6.5vw, 76px);
+    font-weight: 700; line-height: 1.05;
+    letter-spacing: -1px; margin-bottom: 16px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p { font-size: 15px; color: var(--text2); max-width: 560px; margin: 0 auto 36px; line-height: 1.7; }
+  .hero-stats { display: flex; justify-content: center; gap: 36px; flex-wrap: wrap; margin-bottom: 44px; }
+  .hero-stat .num {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 34px; font-weight: 700; color: var(--accent); line-height: 1;
+  }
+  .hero-stat .lbl { font-size: 11px; color: var(--text3); margin-top: 4px; }
+  .btn-primary {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px; font-weight: 700; letter-spacing: 2px;
+    padding: 13px 34px; border-radius: 8px;
+    background: var(--accent); color: #000;
+    border: none; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+  }
+  .btn-primary:hover { background: #33ddff; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,212,255,0.3); }
+  .btn-ghost {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: 1px;
+    padding: 11px 22px; border-radius: 8px;
+    background: none; color: var(--text2);
+    border: 1px solid var(--border); cursor: pointer;
+    transition: all 0.2s; text-transform: uppercase; margin-left: 10px;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text2); }
+  .btn-danger {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 600; letter-spacing: 1px;
+    padding: 11px 22px; border-radius: 8px;
+    background: rgba(255,69,96,0.12); color: var(--red);
+    border: 1px solid rgba(255,69,96,0.3); cursor: pointer;
+    transition: all 0.2s; text-transform: uppercase; margin-left: 10px;
+  }
+  .btn-danger:hover { background: rgba(255,69,96,0.2); }
+
+  /* ─── SECTION ─── */
+  .section { padding: 44px 24px; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 3px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .section-label.red { color: var(--red); }
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 30px; font-weight: 700; margin-bottom: 28px;
+  }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px; transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(0,212,255,0.2); }
+  .card.red-border { border-left: 3px solid var(--red); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* ─── PROBLEM SECTION ─── */
+  .problem-quote {
+    background: var(--panel); border-left: 3px solid var(--accent2);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 18px 22px; margin-bottom: 18px;
+    font-style: italic; color: var(--text2); line-height: 1.7;
+  }
+  .problem-quote strong { color: var(--accent2); font-style: normal; }
+  .stat-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.25);
+    border-radius: 8px; padding: 11px 14px; margin-bottom: 10px; width: 100%;
+  }
+  .stat-pill .icon { font-size: 18px; }
+  .stat-pill .val { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; color: var(--accent2); }
+  .stat-pill .desc { font-size: 11px; color: var(--text2); }
+
+  /* ─── TABLES ─── */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    font-family: 'Space Mono', monospace; font-size: 10px;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: var(--text3); text-align: left;
+    padding: 9px 11px; border-bottom: 1px solid var(--border);
+  }
+  td { padding: 11px; border-bottom: 1px solid rgba(30,42,58,0.5); color: var(--text2); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .highlight-row td { color: var(--text); }
+  .highlight-row td:first-child { color: var(--accent); font-weight: 600; }
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    border-radius: 4px; font-family: 'Space Mono', monospace;
+  }
+  .badge-red    { background: rgba(255,69,96,0.15);  color: var(--red);    border: 1px solid rgba(255,69,96,0.3);  }
+  .badge-yellow { background: rgba(255,217,61,0.15); color: var(--yellow); border: 1px solid rgba(255,217,61,0.3); }
+  .badge-green  { background: rgba(0,255,136,0.1);   color: var(--green);  border: 1px solid rgba(0,255,136,0.25); }
+  .badge-blue   { background: rgba(0,212,255,0.1);   color: var(--accent); border: 1px solid rgba(0,212,255,0.25); }
+  .badge-orange { background: rgba(255,107,53,0.1);  color: var(--accent2);border: 1px solid rgba(255,107,53,0.3); }
+
+  /* ─── SIMULATOR ─── */
+  .live-dot {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Space Mono', monospace; font-size: 11px; color: var(--green);
+  }
+  .live-dot::before {
+    content: ''; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green); animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .trigger-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+  @media (max-width: 600px) { .trigger-grid { grid-template-columns: 1fr 1fr; } }
+  .trigger-card {
+    background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px; cursor: pointer;
+    transition: all 0.22s; text-align: center; user-select: none;
+  }
+  .trigger-card:hover:not(.fired):not(.processing) { border-color: rgba(0,212,255,0.3); transform: translateY(-2px); }
+  .trigger-card.armed   { border-color: var(--accent2); background: rgba(255,107,53,0.08); }
+  /* FIX: fired state replaces armed state cleanly */
+  .trigger-card.fired   { border-color: var(--red); background: rgba(255,69,96,0.1); animation: shake 0.3s; }
+  /* NEW: provisional state for flagged claims */
+  .trigger-card.provisional { border-color: var(--yellow); background: rgba(255,217,61,0.08); }
+  @keyframes shake { 0%,100% { transform: none; } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+  .trigger-icon { font-size: 26px; margin-bottom: 7px; }
+  .trigger-name {
+    font-family: 'Space Mono', monospace; font-size: 10px;
+    letter-spacing: 1px; text-transform: uppercase; color: var(--text2);
+  }
+  .trigger-threshold { font-size: 11px; color: var(--text3); margin-top: 3px; }
+  .trigger-card.armed .trigger-name       { color: var(--accent2); }
+  .trigger-card.fired .trigger-name       { color: var(--red); }
+  .trigger-card.provisional .trigger-name { color: var(--yellow); }
+
+  /* ─── TERMINAL ─── */
+  .terminal {
+    background: #060810; border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px; font-family: 'Space Mono', monospace;
+    font-size: 11px; min-height: 180px; position: relative; overflow: hidden;
+  }
+  .terminal::before {
+    content: '● ● ●'; position: absolute; top: 9px; left: 14px;
+    font-size: 10px; color: var(--text3); letter-spacing: 4px;
+  }
+  .terminal-body { margin-top: 22px; max-height: 240px; overflow-y: auto; }
+  .terminal-body::-webkit-scrollbar { width: 4px; }
+  .terminal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .t-line { margin-bottom: 5px; color: var(--text2); line-height: 1.5; }
+  .t-line.success { color: var(--green); }
+  .t-line.warn    { color: var(--yellow); }
+  .t-line.error   { color: var(--red); }
+  .t-line.info    { color: var(--accent); }
+  .t-line.prov    { color: var(--yellow); }
+  .t-line .ts     { color: var(--text3); margin-right: 6px; }
+
+  /* ─── PAYOUT BANNERS ─── */
+  .payout-banner {
+    display: none; border-radius: 10px; padding: 18px 22px;
+    margin-top: 14px; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  .payout-banner.show { display: flex; animation: fadeIn 0.4s ease; }
+  /* Clean payout: green */
+  .payout-banner.clean-payout {
+    background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,212,255,0.06));
+    border: 1px solid rgba(0,255,136,0.3);
+  }
+  /* Provisional payout: yellow */
+  .payout-banner.provisional-payout {
+    background: linear-gradient(135deg, rgba(255,217,61,0.1), rgba(255,107,53,0.06));
+    border: 1px solid rgba(255,217,61,0.35);
+  }
+  .payout-amount { font-family: 'Rajdhani', sans-serif; font-size: 40px; font-weight: 700; line-height: 1; }
+  .payout-amount.green  { color: var(--green); }
+  .payout-amount.yellow { color: var(--yellow); }
+  .payout-label { font-size: 11px; color: var(--text2); margin-top: 3px; }
+  .payout-time  { font-family: 'Space Mono', monospace; font-size: 20px; color: var(--accent); }
+
+  /* ─── PREMIUM CALCULATOR ─── */
+  .calc-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .calc-label { font-size: 13px; color: var(--text2); }
+  .calc-val { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--text); }
+  .calc-divider { height: 1px; background: var(--border); margin: 10px 0; }
+  select, input[type="range"] {
+    background: var(--panel2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 11px; font-size: 13px;
+    font-family: 'Noto Sans', sans-serif;
+    outline: none; cursor: pointer; transition: border-color 0.2s;
+  }
+  select:hover, select:focus { border-color: var(--accent); }
+  input[type="range"] {
+    padding: 0; width: 100%; -webkit-appearance: none;
+    height: 4px; border-radius: 2px; background: var(--border);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%;
+    background: var(--accent); cursor: pointer; box-shadow: 0 0 6px rgba(0,212,255,0.4);
+  }
+  .premium-result {
+    background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(0,255,136,0.05));
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 10px; padding: 18px; text-align: center; margin-top: 14px;
+  }
+  .premium-amount { font-family: 'Rajdhani', sans-serif; font-size: 50px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .premium-unit { font-size: 13px; color: var(--text2); margin-top: 3px; }
+  .premium-coverage { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--green); margin-top: 7px; }
+
+  /* ─── ML CARDS ─── */
+  .ml-card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px; margin-bottom: 14px;
+  }
+  .ml-card:nth-child(1) { border-left: 3px solid var(--accent);  }
+  .ml-card:nth-child(2) { border-left: 3px solid var(--accent2); }
+  .ml-card:nth-child(3) { border-left: 3px solid var(--green);   }
+  .ml-card:nth-child(4) { border-left: 3px solid var(--yellow);  }
+  .ml-num  { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text3); margin-bottom: 7px; }
+  .ml-title { font-family: 'Rajdhani', sans-serif; font-size: 19px; font-weight: 700; margin-bottom: 7px; }
+  .ml-desc  { font-size: 13px; color: var(--text2); line-height: 1.65; }
+  .ml-tag {
+    display: inline-block; font-family: 'Space Mono', monospace;
+    font-size: 10px; padding: 3px 8px; border-radius: 4px;
+    margin-top: 9px; margin-right: 5px;
+    background: rgba(0,212,255,0.08); color: var(--accent);
+    border: 1px solid rgba(0,212,255,0.2);
+  }
+
+  /* ─── STORY ─── */
+  .story-box {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px;
+    position: relative; overflow: hidden;
+  }
+  .story-box::before {
+    content: '"'; position: absolute; top: -20px; left: 14px;
+    font-size: 110px; color: rgba(0,212,255,0.06);
+    font-family: Georgia, serif; line-height: 1;
+  }
+  .story-text { font-size: 14px; color: var(--text2); line-height: 1.9; font-style: italic; }
+  .story-text strong  { color: var(--accent); font-style: normal; }
+  .story-text .highlight { color: var(--green); font-style: normal; font-weight: 600; }
+  .story-name { margin-top: 18px; font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700; }
+  .story-role { font-size: 11px; color: var(--text3); }
+
+  /* ─── TECH STACK ─── */
+  .tech-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 11px 14px; background: var(--panel2);
+    border: 1px solid var(--border); border-radius: 8px; margin-bottom: 7px;
+  }
+  .tech-icon { font-size: 18px; width: 28px; text-align: center; margin-top: 2px; flex-shrink: 0; }
+  .tech-name { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text); }
+  .tech-desc { font-size: 11px; color: var(--text3); margin-top: 2px; line-height: 1.5; }
+
+  /* ─── ROADMAP ─── */
+  .roadmap-item { display: flex; gap: 14px; margin-bottom: 18px; position: relative; }
+  .roadmap-item:not(:last-child)::after {
+    content: ''; position: absolute; left: 10px; top: 26px;
+    width: 2px; bottom: -18px; background: var(--border);
+  }
+  .roadmap-dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--accent); background: var(--bg);
+    flex-shrink: 0; display: flex; align-items: center;
+    justify-content: center; font-size: 10px;
+  }
+  .roadmap-dot.done { background: var(--accent); color: #000; }
+  .roadmap-content { padding-top: 1px; }
+  .roadmap-date  { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent2); margin-bottom: 3px; }
+  .roadmap-title { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .roadmap-items { font-size: 11px; color: var(--text2); line-height: 1.8; }
+
+  /* ─── PROGRESS BARS ─── */
+  .progress-bar-outer { background: var(--border); border-radius: 4px; height: 6px; margin: 5px 0; overflow: hidden; }
+  .progress-bar-inner { height: 100%; border-radius: 4px; background: var(--accent); transition: width 1.2s ease; }
+  .progress-bar-inner.green  { background: var(--green); }
+  .progress-bar-inner.orange { background: var(--accent2); }
+  .progress-bar-inner.red    { background: var(--red); }
+
+  /* ─── STREAK ─── */
+  .streak-ladder { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); margin-top: 14px; }
+  .streak-step {
+    flex: 1; padding: 11px 6px; text-align: center;
+    border-right: 1px solid var(--border); font-size: 10px; color: var(--text3);
+    background: var(--panel2); transition: all 0.3s;
+  }
+  .streak-step:last-child { border-right: none; }
+  .streak-step.active { background: rgba(255,217,61,0.1); color: var(--yellow); }
+  .streak-step.gold   { background: rgba(255,217,61,0.15); color: var(--yellow); border-color: rgba(255,217,61,0.3); }
+  .streak-step .sw { font-size: 16px; }
+  .streak-step .sl { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; }
+
+  /* ─── ADVERSARIAL ─── */
+  /* Crisis banner at top of section */
+  .crisis-banner {
+    background: linear-gradient(135deg, rgba(255,69,96,0.12), rgba(255,107,53,0.06));
+    border: 1px solid rgba(255,69,96,0.35);
+    border-radius: var(--radius); padding: 18px 22px; margin-bottom: 28px;
+  }
+  .crisis-banner p { font-size: 13px; color: var(--text2); line-height: 1.7; margin-top: 6px; }
+  /* Coherence score table row colouring */
+  .coherence-table tr:hover td { background: rgba(255,69,96,0.04); }
+  /* Provisional payout workflow steps */
+  .prov-steps { display: flex; flex-direction: column; gap: 0; }
+  .prov-step {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .prov-step:last-child { border-bottom: none; }
+  .prov-step-num {
+    font-family: 'Space Mono', monospace; font-size: 11px;
+    color: var(--text3);
+    background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 50%; width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .prov-step-num.green  { border-color: rgba(0,255,136,0.4); color: var(--green); }
+  .prov-step-num.yellow { border-color: rgba(255,217,61,0.4); color: var(--yellow); }
+  .prov-step-title  { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .prov-step-desc   { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  /* Ring detection list */
+  .ring-item {
+    background: var(--panel2); border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px; margin-bottom: 8px;
+  }
+  .ring-item-title { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .ring-item-desc  { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  /* Never-do list */
+  .never-do {
+    background: rgba(0,255,136,0.04); border: 1px solid rgba(0,255,136,0.2);
+    border-radius: var(--radius); padding: 18px 22px; margin-top: 20px;
+  }
+  .never-do ul { list-style: none; padding: 0; margin-top: 10px; }
+  .never-do li {
+    font-size: 13px; color: var(--text2); padding: 6px 0;
+    border-bottom: 1px solid rgba(0,255,136,0.1);
+    display: flex; align-items: flex-start; gap: 10px; line-height: 1.5;
+  }
+  .never-do li:last-child { border-bottom: none; }
+  .never-do li::before { content: '✓'; color: var(--green); flex-shrink: 0; font-weight: 700; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border); padding: 28px 24px;
+    text-align: center; font-size: 12px; color: var(--text3); margin-top: 60px;
+  }
+  footer strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<!-- FIX: replaced fragile substring tab-matching with explicit data-tab attributes -->
+<nav>
+  <div class="logo">
+    <span>&#x1F6E1;&#xFE0F;</span> GIGGUARD AI
+    <span class="nav-badge">DEVTrails 2026</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active"     data-tab="overview"    onclick="showTab('overview')">Overview</button>
+    <button class="nav-tab"            data-tab="simulator"   onclick="showTab('simulator')">Simulator</button>
+    <button class="nav-tab"            data-tab="premium"     onclick="showTab('premium')">Premium</button>
+    <button class="nav-tab"            data-tab="ml"          onclick="showTab('ml')">AI / ML</button>
+    <button class="nav-tab"            data-tab="persona"     onclick="showTab('persona')">Persona</button>
+    <button class="nav-tab"            data-tab="stack"       onclick="showTab('stack')">Stack</button>
+    <!-- NEW: Adversarial Defense tab — required by Market Crash scenario -->
+    <button class="nav-tab"            data-tab="adversarial" onclick="showTab('adversarial')">&#x26A0;&#xFE0F; Defense</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     TAB 1: OVERVIEW
+════════════════════════════════════════════════ -->
+<div id="tab-overview" class="screen active">
+  <div class="hero">
+    <div class="hero-tag">Guidewire DEVTrails 2026 &middot; Phase 1 Submission</div>
+    <h1>Zero-Touch <span>Income Shield</span><br>for India's Gig Heroes</h1>
+    <p>Parametric AI protection that pays out automatically — in real time — the moment a verified disruption crosses a threshold. Zero paperwork. Zero waiting. Zero forms.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">12M+</div><div class="lbl">Gig delivery partners<br>in India unprotected</div></div>
+      <div class="hero-stat"><div class="num">&#x20B9;3,800</div><div class="lbl">Weekly income lost<br>per monsoon disruption</div></div>
+      <div class="hero-stat"><div class="num">&lt;90s</div><div class="lbl">Payout to UPI wallet<br>after clean trigger</div></div>
+      <div class="hero-stat"><div class="num">3.2%</div><div class="lbl">Gig workers with any<br>income protection</div></div>
+    </div>
+    <button class="btn-primary" onclick="showTab('simulator')">&#x25B6; Launch Simulator</button>
+    <button class="btn-ghost"   onclick="showTab('persona')">Read Karthik's Story</button>
+    <button class="btn-danger"  onclick="showTab('adversarial')">&#x26A0;&#xFE0F; See Defense Strategy</button>
+  </div>
+
+  <!-- PROBLEM -->
+  <div class="section">
+    <div class="section-label">The Problem</div>
+    <div class="section-title">The Invisible Income Shock</div>
+    <div class="grid-2">
+      <div>
+        <div class="stat-pill">
+          <span class="icon">&#x1F327;&#xFE0F;</span>
+          <div>
+            <div class="val">&#x20B9;2,200&ndash;3,800</div>
+            <div class="desc">Weekly loss per Chennai Q-commerce rider during Northeast Monsoon (18&ndash;24% of monthly earnings)</div>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <span class="icon">&#x1F636;</span>
+          <div>
+            <div class="val">11.6M workers</div>
+            <div class="desc">Entirely uninsured against weather or civic disruptions across Tier-1 cities</div>
+          </div>
+        </div>
+        <div class="stat-pill">
+          <span class="icon">&#x1F4E6;</span>
+          <div>
+            <div class="val">70&ndash;85% drop</div>
+            <div class="desc">In Q-commerce orders during a disruption — far worse than food delivery (40&ndash;50%) due to hyper-local dark store dependency</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="problem-quote">
+          When a cyclone stalls over Chennai, when smog shuts down Bengaluru's outer ring road, or when a sudden bandh locks down a dark store's catchment zone, a delivery partner simply <strong>stops earning</strong>. No safety net catches them. No claim form exists. They absorb the loss silently and try again next week.
+        </div>
+        <div style="margin-top:16px">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:11px">Why Q-Commerce, Not Food Delivery</div>
+          <table>
+            <tr><th>Dimension</th><th>Food Delivery</th><th>Q-Commerce &larr;</th></tr>
+            <tr>
+              <td>Delivery window</td>
+              <td><span class="badge badge-yellow">30&ndash;45 min</span></td>
+              <td><span class="badge badge-red">10&ndash;15 min</span></td>
+            </tr>
+            <tr>
+              <td>Zone coverage</td>
+              <td>5&ndash;8 km radius</td>
+              <td><span class="badge badge-red">1&ndash;3 km only</span></td>
+            </tr>
+            <tr>
+              <td>Orders/hr disruption</td>
+              <td>&minus;40&ndash;50%</td>
+              <td><span class="badge badge-red">&minus;70&ndash;85%</span></td>
+            </tr>
+            <tr>
+              <td>Income replacement</td>
+              <td>Partial surge available</td>
+              <td><span class="badge badge-red">None</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section">
+    <div class="section-label">Solution</div>
+    <div class="section-title">How GigGuard Works</div>
+    <div class="grid-3">
+      <div class="card">
+        <div style="font-size:30px;margin-bottom:11px">&#x1F4F1;</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:7px">1. Onboard in 90 Seconds</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6">Phone OTP + Aadhaar + Platform Rider ID. 5-question risk quiz. AI Coherence-verified risk score. Dynamic weekly premium offered with plain-language SHAP explanation.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:30px;margin-bottom:11px">&#x1F6F0;&#xFE0F;</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:7px">2. Real-Time Monitoring</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6">6 parametric triggers checked every 15 minutes at pin-code granularity. All triggers require dual-source confirmation before payout fires — no single-sensor false positives.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:30px;margin-bottom:11px">&#x1F4B8;</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:7px">3. Auto-Payout &lt;90s</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6">Threshold crossed → dual-source confirmed → Coherence Score check → claim raised → UPI wallet credited. Clean claims in under 90 seconds. Flagged claims receive 50% instantly, remainder resolved passively within 4 hours.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRIGGERS TABLE -->
+  <div class="section">
+    <div class="section-label">Parametric Triggers</div>
+    <div class="section-title">What We Monitor</div>
+    <table>
+      <tr><th>#</th><th>Trigger</th><th>Data Source</th><th>Threshold</th><th>Income Loss Est.</th></tr>
+      <tr>
+        <td>&#x1F327;&#xFE0F;</td>
+        <td><strong style="color:var(--text)">Heavy Rainfall</strong></td>
+        <td style="color:var(--text3)">OpenWeatherMap + IMD</td>
+        <td>&gt;25 mm in any 3-hour rolling window</td>
+        <td><span class="badge badge-red">65&ndash;80%</span></td>
+      </tr>
+      <tr>
+        <td>&#x1F32B;&#xFE0F;</td>
+        <td><strong style="color:var(--text)">Severe AQI</strong></td>
+        <td style="color:var(--text3)">CPCB Open Data API</td>
+        <td>AQI &gt; 250 for 2+ hours</td>
+        <td><span class="badge badge-yellow">35&ndash;50%</span></td>
+      </tr>
+      <tr>
+        <td>&#x1F321;&#xFE0F;</td>
+        <td><strong style="color:var(--text)">Extreme Heat Index</strong></td>
+        <td style="color:var(--text3)">OpenWeatherMap (temp + RH)</td>
+        <td>Feels-like &gt; 42&deg;C for 90+ min (11AM&ndash;4PM)</td>
+        <td><span class="badge badge-yellow">40&ndash;55%</span></td>
+      </tr>
+      <tr>
+        <td>&#x1F697;</td>
+        <td><strong style="color:var(--text)">Zone Flooding</strong></td>
+        <td style="color:var(--text3)">TomTom Traffic API (mock)</td>
+        <td>Avg. road speed &lt; 5 km/h for 45 min</td>
+        <td><span class="badge badge-red">85&ndash;100%</span></td>
+      </tr>
+      <tr>
+        <td>&#x1F6A8;</td>
+        <td><strong style="color:var(--text)">Flash Flood / NDMA Alert</strong></td>
+        <td style="color:var(--text3)">NDMA Disaster API (mock)</td>
+        <td>Red or Orange alert for rider's pin code</td>
+        <td><span class="badge badge-red">85&ndash;100%</span></td>
+      </tr>
+      <tr>
+        <td>&#x1F6AB;</td>
+        <td><strong style="color:var(--text)">Bandh / Curfew</strong></td>
+        <td style="color:var(--text3)">Civic RSS + NLP classifier</td>
+        <td>Verified movement restriction &gt; 3 hours in zone</td>
+        <td><span class="badge badge-red">90&ndash;100%</span></td>
+      </tr>
+    </table>
+    <div style="margin-top:10px;font-size:12px;color:var(--text3)">
+      All triggers require dual-source confirmation (environmental API + dark store order-count corroboration) before payout fires. This is also the first line of anti-spoofing defense.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TAB 2: SIMULATOR
+     FIX: Added provisional payout flow for AQI trigger to demonstrate flagged-claim UX.
+     FIX: Reset now properly zeros triggerCount and totalPayout.
+════════════════════════════════════════════════ -->
+<div id="tab-simulator" class="screen">
+  <div class="section">
+    <div class="section-label">Live Demo</div>
+    <div class="section-title">Parametric Trigger Simulator</div>
+    <div style="color:var(--text2);font-size:13px;margin-bottom:24px">
+      Click a trigger to simulate a disruption event for Anna Nagar, Chennai. The AQI trigger demonstrates the
+      <strong style="color:var(--yellow)">Provisional Payout</strong> flow — 50% released instantly, remainder resolved in 4 hours —
+      to show how GigGuard handles ambiguous Coherence Scores without penalising honest riders.
+    </div>
+
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:22px">
+      <div class="card" style="flex:1;min-width:200px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-family:'Space Mono',monospace">ACTIVE RIDER</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700">Karthik</div>
+        <div style="font-size:12px;color:var(--text2)">Blinkit Partner &middot; Anna Nagar, Chennai</div>
+        <div style="margin-top:11px;font-size:12px;color:var(--text2)">Coverage: <strong style="color:var(--accent)">&#x20B9;1,400/week</strong></div>
+        <div style="font-size:12px;color:var(--text2)">Premium paid: <strong style="color:var(--text)">&#x20B9;49</strong> &middot; Policy active</div>
+      </div>
+      <div class="card" style="flex:1;min-width:200px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;font-family:'Space Mono',monospace">CURRENT CONDITIONS</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:12px;color:var(--text2)">&#x1F327;&#xFE0F; Rainfall</span>
+          <span id="rain-val" style="font-family:'Space Mono',monospace;font-size:12px;color:var(--green)">8.2 mm/hr</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:12px;color:var(--text2)">&#x1F32B;&#xFE0F; AQI</span>
+          <span id="aqi-val" style="font-family:'Space Mono',monospace;font-size:12px;color:var(--green)">142</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:12px;color:var(--text2)">&#x1F321;&#xFE0F; Heat Index</span>
+          <span id="heat-val" style="font-family:'Space Mono',monospace;font-size:12px;color:var(--yellow)">38.4&deg;C</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-size:12px;color:var(--text2)">&#x1F697; Road Speed</span>
+          <span id="traffic-val" style="font-family:'Space Mono',monospace;font-size:12px;color:var(--green)">34 km/h</span>
+        </div>
+      </div>
+      <div class="card" style="flex:1;min-width:200px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;font-family:'Space Mono',monospace">MONITOR STATUS</div>
+        <div class="live-dot" style="margin-bottom:11px">ACTIVE &mdash; checking every 15 min</div>
+        <div style="font-size:12px;color:var(--text2)">Last check: <span style="color:var(--text)">Just now</span></div>
+        <div style="font-size:12px;color:var(--text2);margin-top:3px">Triggers fired: <span style="color:var(--text)" id="trigger-count">0</span></div>
+        <div style="font-size:12px;color:var(--text2);margin-top:3px">Total payout: <span style="color:var(--green);font-family:'Space Mono',monospace" id="total-payout">&#x20B9;0</span></div>
+      </div>
+    </div>
+
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:10px;letter-spacing:1px">
+      SELECT A TRIGGER &mdash; AQI TRIGGER SHOWS PROVISIONAL PAYOUT FLOW &#x1F447;
+    </div>
+    <div class="trigger-grid">
+      <div class="trigger-card" id="tc-rain"  onclick="fireTrigger('rain')">
+        <div class="trigger-icon">&#x1F327;&#xFE0F;</div>
+        <div class="trigger-name">Heavy Rainfall</div>
+        <div class="trigger-threshold">&gt;25mm / 3hr</div>
+      </div>
+      <!-- AQI trigger demonstrates provisional payout -->
+      <div class="trigger-card" id="tc-aqi" onclick="fireTrigger('aqi')" title="Demonstrates provisional (flagged) payout flow">
+        <div class="trigger-icon">&#x1F32B;&#xFE0F;</div>
+        <div class="trigger-name">Severe AQI <span style="color:var(--yellow);font-size:9px">provisional</span></div>
+        <div class="trigger-threshold">AQI &gt; 250</div>
+      </div>
+      <div class="trigger-card" id="tc-heat"  onclick="fireTrigger('heat')">
+        <div class="trigger-icon">&#x1F321;&#xFE0F;</div>
+        <div class="trigger-name">Extreme Heat</div>
+        <div class="trigger-threshold">&gt;42&deg;C feels-like</div>
+      </div>
+      <div class="trigger-card" id="tc-flood" onclick="fireTrigger('flood')">
+        <div class="trigger-icon">&#x1F697;</div>
+        <div class="trigger-name">Zone Flooding</div>
+        <div class="trigger-threshold">Speed &lt; 5km/h</div>
+      </div>
+      <div class="trigger-card" id="tc-ndma"  onclick="fireTrigger('ndma')">
+        <div class="trigger-icon">&#x1F6A8;</div>
+        <div class="trigger-name">NDMA Flash Alert</div>
+        <div class="trigger-threshold">Red/Orange alert</div>
+      </div>
+      <div class="trigger-card" id="tc-bandh" onclick="fireTrigger('bandh')">
+        <div class="trigger-icon">&#x1F6AB;</div>
+        <div class="trigger-name">Bandh / Curfew</div>
+        <div class="trigger-threshold">&gt;3hr restriction</div>
+      </div>
+    </div>
+
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:9px;letter-spacing:1px">SYSTEM LOG &darr;</div>
+    <div class="terminal">
+      <div class="terminal-body" id="terminal-log">
+        <div class="t-line"><span class="ts">18:42:01</span>GigGuard monitoring engine active &mdash; Anna Nagar zone (PIN 600040)</div>
+        <div class="t-line"><span class="ts">18:42:01</span>Polling: OpenWeatherMap &middot; CPCB &middot; TomTom (mock) &middot; NDMA feeds</div>
+        <div class="t-line success"><span class="ts">18:42:03</span>All 6 parametric monitors &check; HEALTHY</div>
+        <div class="t-line"><span class="ts">18:42:03</span>Coherence Score engine &check; ACTIVE &mdash; collecting sensor baseline</div>
+        <div class="t-line"><span class="ts">18:42:03</span>Waiting for threshold breach...</div>
+      </div>
+    </div>
+
+    <!-- Clean payout banner -->
+    <div class="payout-banner clean-payout" id="payout-banner-clean">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text2);margin-bottom:3px">UPI PAYOUT COMPLETED &mdash; CLEAN</div>
+        <div class="payout-amount green" id="payout-amount-clean">&#x20B9;0</div>
+        <div class="payout-label">Deposited to Karthik's UPI &middot; **** 4821</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:10px;color:var(--text2);margin-bottom:3px;font-family:'Space Mono',monospace">ELAPSED TIME</div>
+        <div class="payout-time" id="payout-timer">00:00</div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--text2);margin-bottom:3px;font-family:'Space Mono',monospace">COHERENCE SCORE</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--green)">CLEAN</div>
+        <div style="font-size:10px;color:var(--text3)">Score: 0.81 &mdash; above 0.65 threshold</div>
+      </div>
+    </div>
+
+    <!-- Provisional payout banner (shown for AQI trigger) -->
+    <div class="payout-banner provisional-payout" id="payout-banner-prov">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--yellow);margin-bottom:3px">PROVISIONAL PAYOUT &mdash; 50% RELEASED</div>
+        <div class="payout-amount yellow" id="payout-amount-prov">&#x20B9;0</div>
+        <div class="payout-label" style="color:var(--yellow)">Partial credit to Karthik's UPI &middot; **** 4821</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px">Remaining 50% in escrow &mdash; 4-hour passive review window open</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:10px;color:var(--text2);margin-bottom:3px;font-family:'Space Mono',monospace">COHERENCE SCORE</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--yellow)">AMBIGUOUS</div>
+        <div style="font-size:10px;color:var(--text3)">Score: 0.48 &mdash; in 0.35&ndash;0.65 band</div>
+        <div style="font-size:10px;color:var(--text2);margin-top:4px">Auto-resolves if signals recover. No rider action needed.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;text-align:center">
+      <button class="btn-ghost" onclick="resetSim()">&#x21BA; Reset Simulation</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TAB 3: PREMIUM
+     FIX: Max payout calculation corrected to proper coverage cap formula.
+     Coverage cap = Base_Premium × ZRM × RSF × SI × 28.57 (1/3.5%)
+════════════════════════════════════════════════ -->
+<div id="tab-premium" class="screen">
+  <div class="section">
+    <div class="section-label">Financial Model</div>
+    <div class="section-title">Weekly Premium Calculator</div>
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <div style="margin-bottom:18px">
+            <div class="calc-label" style="margin-bottom:7px">Zone Risk Level</div>
+            <select id="zone-select" onchange="calcPremium()" style="width:100%">
+              <option value="0.8"> Low Risk &mdash; OMR Tech Corridor (ZRM 0.80)</option>
+              <option value="1.0" selected> Medium Risk &mdash; Anna Nagar (ZRM 1.00)</option>
+              <option value="1.45"> High Risk &mdash; T. Nagar Core (ZRM 1.45)</option>
+            </select>
+          </div>
+          <div style="margin-bottom:18px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+              <div class="calc-label">Rider Risk Score (XGBoost output)</div>
+              <div style="font-family:'Space Mono',monospace;font-size:13px;color:var(--accent)" id="score-display">62</div>
+            </div>
+            <input type="range" min="10" max="95" value="62" id="score-slider"
+              oninput="calcPremium(); document.getElementById('score-display').textContent = this.value">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:3px">
+              <span>Safe (10)</span><span>Risky (95)</span>
+            </div>
+          </div>
+          <div style="margin-bottom:18px">
+            <div class="calc-label" style="margin-bottom:7px">Season</div>
+            <select id="season-select" onchange="calcPremium()" style="width:100%">
+              <option value="0.9">  Jan&ndash;May (Dry Season &middot; SI 0.90)</option>
+              <option value="1.2">  Jun&ndash;Sep (SW Monsoon &middot; SI 1.20)</option>
+              <option value="1.35" selected> Oct&ndash;Dec (NE Monsoon &middot; SI 1.35)</option>
+            </select>
+          </div>
+
+          <div class="calc-divider"></div>
+          <div class="calc-row"><div class="calc-label">Base Premium</div><div class="calc-val">&#x20B9;35.00</div></div>
+          <div class="calc-row"><div class="calc-label">&times; Zone Risk Multiplier (ZRM)</div><div class="calc-val" id="zrm-display">1.00</div></div>
+          <div class="calc-row"><div class="calc-label">&times; Rider Risk Factor (RSF)</div><div class="calc-val" id="rsf-display">1.04</div></div>
+          <div class="calc-row"><div class="calc-label">&times; Season Index (SI)</div><div class="calc-val" id="si-display">1.35</div></div>
+          <div class="calc-divider"></div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:8px">
+            RSF = 0.85 + (score / 100) &times; 0.30 &nbsp;&middot;&nbsp;
+            Max payout = premium &times; (1 / 3.5%) &asymp; premium &times; 28.57
+          </div>
+
+          <div class="premium-result">
+            <div class="premium-amount" id="premium-amount">&#x20B9;49</div>
+            <div class="premium-unit">per week</div>
+            <div class="premium-coverage" id="premium-coverage">Max payout: &#x20B9;1,400 &middot; Coverage ratio: 28.6&times;</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:14px">3 Riders &middot; Same Week &middot; October, Chennai</div>
+          <table>
+            <tr><th>Rider</th><th>Zone</th><th>Score</th><th>Premium</th><th>Max Payout</th><th>Ratio</th></tr>
+            <tr class="highlight-row">
+              <td>Karthik</td>
+              <td><span class="badge badge-yellow">Medium</span></td>
+              <td>62</td>
+              <td style="color:var(--accent);font-family:'Space Mono',monospace">&#x20B9;49</td>
+              <td style="color:var(--green)">&#x20B9;1,400</td>
+              <td style="color:var(--text3)">28.6&times;</td>
+            </tr>
+            <tr>
+              <td>Priya</td>
+              <td><span class="badge badge-red">High</span></td>
+              <td>74</td>
+              <td style="color:var(--accent);font-family:'Space Mono',monospace">&#x20B9;73</td>
+              <td style="color:var(--green)">&#x20B9;2,000</td>
+              <td style="color:var(--text3)">27.4&times;</td>
+            </tr>
+            <tr>
+              <td>Manoj</td>
+              <td><span class="badge badge-green">Low</span></td>
+              <td>38</td>
+              <td style="color:var(--accent);font-family:'Space Mono',monospace">&#x20B9;36</td>
+              <td style="color:var(--green)">&#x20B9;1,000</td>
+              <td style="color:var(--text3)">27.8&times;</td>
+            </tr>
+          </table>
+          <div style="margin-top:10px;font-size:11px;color:var(--text3)">
+            All riders pay under &#x20B9;75/week — roughly one Zepto convenience fee — for coverage worth 27&ndash;29&times; the premium during a disruption event.
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:14px">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:14px">Loss Ratio Stress Test &middot; 10,000 Riders</div>
+          <div style="margin-bottom:11px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+              <span style="color:var(--text2)">Normal (1.2 disruption days/month)</span>
+              <span style="color:var(--green);font-family:'Space Mono',monospace">26%</span>
+            </div>
+            <div class="progress-bar-outer"><div class="progress-bar-inner green" style="width:26%"></div></div>
+          </div>
+          <div style="margin-bottom:11px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+              <span style="color:var(--text2)">Peak Monsoon (3.2 days/month)</span>
+              <span style="color:var(--yellow);font-family:'Space Mono',monospace">70% &check;</span>
+            </div>
+            <div class="progress-bar-outer"><div class="progress-bar-inner orange" style="width:70%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+              <span style="color:var(--text2)">Stress &mdash; Cyclone Month (6.0 days)</span>
+              <span style="color:var(--red);font-family:'Space Mono',monospace">114% &mdash; auto-escalation fires</span>
+            </div>
+            <div class="progress-bar-outer"><div class="progress-bar-inner red" style="width:100%"></div></div>
+          </div>
+          <div style="margin-top:9px;font-size:11px;color:var(--text3)">
+            When loss ratio exceeds 100%: Season Index auto-escalates at the next Monday retraining cycle. Community Risk Pool absorbs ~18% of the overage in the current period.
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:7px">Safe Zone Streak Discount</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:11px">Operate in low-disruption corridors consistently. Week 5 unlocks GigGuard Gold: premium frozen for 4 weeks regardless of seasonal index movement.</div>
+          <div class="streak-ladder">
+            <div class="streak-step active"><div class="sw">&#x2713;</div><div class="sl">Wk 1</div><div>Clean</div></div>
+            <div class="streak-step active"><div class="sw">&#x2713;</div><div class="sl">Wk 2</div><div>&minus;&#x20B9;8</div></div>
+            <div class="streak-step">       <div class="sw">&#x25CB;</div><div class="sl">Wk 3</div><div>&mdash;</div></div>
+            <div class="streak-step">       <div class="sw">&#x25CB;</div><div class="sl">Wk 4</div><div>&minus;&#x20B9;15</div></div>
+            <div class="streak-step gold">  <div class="sw">&#x1F947;</div><div class="sl">Wk 5</div><div>GOLD</div></div>
+          </div>
+          <div style="margin-top:9px;font-size:11px;color:var(--yellow)">GigGuard Gold: premium frozen at initial rate for 4 weeks. Rate certainty no flat-rate product can offer.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TAB 4: AI / ML
+     FIX: LSTM corrected from bidirectional to unidirectional with temporal attention.
+          Explicit data-leakage explanation added (bidirectionality = seeing the future
+          during training, which is invalid for a forward-forecasting task).
+     FIX: Added Phase 1 vs Phase 2+ training data honesty note.
+     FIX: Added full data pipeline description matching README architecture section.
+════════════════════════════════════════════════ -->
+<div id="tab-ml" class="screen">
+  <div class="section">
+    <div class="section-label">Intelligence Layer</div>
+    <div class="section-title">Four AI / ML Engines</div>
+
+    <!-- Pipeline overview -->
+    <div class="card" style="margin-bottom:18px;border-left:3px solid var(--text3)">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:10px">Data Pipeline Overview</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7">
+        Raw sources (IMD historical rainfall CSVs, CPCB AQI archives, synthetic gig earnings data) are ingested nightly by a FastAPI background worker into a PostgreSQL time-series table keyed on
+        <code style="font-family:'Space Mono',monospace;font-size:11px;background:var(--panel2);padding:2px 5px;border-radius:3px">(date, pin_code, metric_type, metric_value)</code>.
+        Every Sunday at 11 PM, a feature engineering job produces per-rider feature vectors: rainfall variance, disruption frequency, AQI severity, zone consistency entropy, earnings coefficient of variation, and temporal flags.
+        XGBoost inference runs Monday 2 AM to reprice all active policies before the weekly premium deduction. The real-time trigger monitor polls every 15 minutes, publishes to Redis on threshold breach, and the FastAPI consumer runs Coherence Score evaluation before routing to clean or provisional payout.
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--yellow)">
+        Phase 1 note: XGBoost and LSTM both train on synthetic data (IMD 2019&ndash;2024 + NITI Aayog earnings distributions). No real rider data exists yet. Phase 2 replaces synthetic features with actual onboarding survey responses and GPS activity logs. We are not claiming production accuracy in Phase 1 &mdash; we are demonstrating the architecture is correct and the pricing logic is sound.
+      </div>
+    </div>
+
+    <div class="ml-card">
+      <div class="ml-num">01 / PREMIUM ENGINE</div>
+      <div class="ml-title">Dynamic Premium &mdash; LightGBM Regression</div>
+      <div class="ml-desc">
+        LightGBM is chosen specifically for its ~15ms inference time — the only viable option for real-time premium calculation at policy purchase. XGBoost is used in Phase 3 alongside SHAP for interpretability.
+        Feature set spans five categories: hyper-local weather (7-day IMD forecast, 90-day rainfall variance for rider's pin code, monsoon phase index), environmental (CPCB AQI 7-day forecast, heatwave probability), rider behaviour (weekly active hours, zone consistency score as GPS entropy, earnings coefficient of variation), zone profile (historical disruption frequency per quarter, waterbody proximity index, road elevation score), and temporal (week-of-year cyclicality, festival flag, day-of-week earnings pattern).
+        Target variable: <code style="font-family:'Space Mono',monospace;font-size:11px;background:var(--panel2);padding:2px 4px;border-radius:3px">expected_income_loss_pct</code> for the upcoming 7 days. Retrained every Monday 2 AM using the previous week's confirmed trigger events as labelled ground truth.
+      </div>
+      <div>
+        <span class="ml-tag">LightGBM</span>
+        <span class="ml-tag">~15ms inference</span>
+        <span class="ml-tag">Weekly retraining</span>
+        <span class="ml-tag">22 features</span>
+        <span class="ml-tag">IMD + CPCB data</span>
+        <span class="ml-tag">MLflow tracking</span>
+      </div>
+    </div>
+
+    <div class="ml-card">
+      <div class="ml-num">02 / FRAUD DETECTION</div>
+      <div class="ml-title">Multi-Layer Fraud Stack &mdash; Coherence Score + Isolation Forest</div>
+      <div class="ml-desc">
+        Three layers. <strong style="color:var(--text)">Layer A (Isolation Forest):</strong> detects anomalous claim contexts using time since last GPS ping, distance from dark store at trigger time, claimed active hours vs. GPS movement entropy, and claim-to-premium ratio vs. historical baseline. Anomaly score &gt;0.72 triggers escalation.
+        <strong style="color:var(--text)">Layer B (GPS Spoofing Prevention):</strong> cross-references GPS coordinates with accelerometer + gyroscope sensor fusion. Mock location apps produce zero gyroscope variance — our SDK detects this immediately. Critically, GPS-spoofing apps inject <em>clean, high-precision</em> coordinates; a genuine rider in heavy rain receives degraded GPS with elevated HDOP values. This inversion — clean GPS during severe weather — is one of our strongest single spoofing indicators. The Coherence Score aggregates all signal dimensions (accelerometer variance, gyroscope, battery drain, network signal strength, app foreground state, zone familiarity) into a 0&ndash;1 score. Score &gt;0.65: clean payout. Score 0.35&ndash;0.65: Provisional Payout. Score &lt;0.35: full freeze pending human review.
+        <strong style="color:var(--text)">Layer C (Idempotency):</strong> each payout hashed against a unique <code style="font-family:'Space Mono',monospace;font-size:11px;background:var(--panel2);padding:2px 4px;border-radius:3px">(rider_id, trigger_event_id, pin_code, timestamp)</code> tuple in PostgreSQL. One payout per rider per policy period, guaranteed.
+      </div>
+      <div>
+        <span class="ml-tag" style="border-color:rgba(255,107,53,0.3);color:var(--accent2);background:rgba(255,107,53,0.08)">Isolation Forest</span>
+        <span class="ml-tag" style="border-color:rgba(255,107,53,0.3);color:var(--accent2);background:rgba(255,107,53,0.08)">Coherence Score</span>
+        <span class="ml-tag" style="border-color:rgba(255,107,53,0.3);color:var(--accent2);background:rgba(255,107,53,0.08)">GPS + Sensor Fusion</span>
+        <span class="ml-tag" style="border-color:rgba(255,107,53,0.3);color:var(--accent2);background:rgba(255,107,53,0.08)">HDOP Inversion Check</span>
+        <span class="ml-tag" style="border-color:rgba(255,107,53,0.3);color:var(--accent2);background:rgba(255,107,53,0.08)">Idempotency (PostgreSQL)</span>
+      </div>
+    </div>
+
+    <div class="ml-card">
+      <div class="ml-num">03 / FORECASTING</div>
+      <!--
+        CRITICAL FIX: "Bidirectional LSTM" removed. The README explicitly corrects this:
+        bidirectionality = data leakage because the backward pass reads future timesteps
+        during training, which is invalid for a causal forward-forecasting task.
+        Correct architecture: unidirectional LSTM with temporal attention.
+      -->
+      <div class="ml-title">7-Day Disruption Forecasting &mdash; LSTM (Unidirectional + Temporal Attention)</div>
+      <div class="ml-desc">
+        Architecture: <strong style="color:var(--text)">unidirectional</strong> 2-layer LSTM with a temporal attention mechanism over the final 7 timesteps (PyTorch).
+        Bidirectionality is explicitly excluded: a bidirectional LSTM reads future timesteps during the backward pass at training time, which constitutes data leakage for a causal forward-forecasting task. Unidirectional LSTM processes the sequence left-to-right only, preserving causal integrity.
+        The temporal attention layer visualises which past disruption days most influenced the current 7-day risk window — useful both for model debugging and for the SHAP-style rider explanations.
+        Input: 90-day rolling window of (daily_rainfall, aqi_max, disruption_flag, order_count_index) per pin-code cluster.
+        Output: P(disruption_day) for each of the next 7 days per pin-code cluster.
+        This forecast directly modulates the Season_Index in the premium formula and pre-stages liquidity reserves before events occur.
+        Training: IMD + CPCB time series from data.gov.in augmented with synthetic disruption sequences.
+      </div>
+      <div>
+        <span class="ml-tag" style="border-color:rgba(0,255,136,0.25);color:var(--green);background:rgba(0,255,136,0.08)">PyTorch LSTM</span>
+        <span class="ml-tag" style="border-color:rgba(0,255,136,0.25);color:var(--green);background:rgba(0,255,136,0.08)">Unidirectional (causal)</span>
+        <span class="ml-tag" style="border-color:rgba(0,255,136,0.25);color:var(--green);background:rgba(0,255,136,0.08)">Temporal Attention</span>
+        <span class="ml-tag" style="border-color:rgba(0,255,136,0.25);color:var(--green);background:rgba(0,255,136,0.08)">90-day window</span>
+        <span class="ml-tag" style="border-color:rgba(0,255,136,0.25);color:var(--green);background:rgba(0,255,136,0.08)">No data leakage</span>
+      </div>
+    </div>
+
+    <div class="ml-card">
+      <div class="ml-num">04 / EXPLAINABILITY &mdash; Phase 3</div>
+      <div class="ml-title">SHAP &mdash; Trustworthy Premium Explanations</div>
+      <div class="ml-desc">
+        SHAP (SHapley Additive exPlanations) applied to the XGBoost production model in Phase 3. Every rider sees a real breakdown on their home screen:
+        <em style="color:var(--text2)">"Premium this week: &#x20B9;61 (+&#x20B9;12 vs last week). Why: Rain probability in your zone &uarr;46pp &rarr; adds &#x20B9;9 &middot; Northeast Monsoon season index active &rarr; adds &#x20B9;5 &middot; Your zone consistency improved &rarr; saves &#x20B9;2."</em>
+        This is not a dashboard feature — it is a trust and retention mechanism. Riders who understand why their premium changed churn significantly less than those who don't. SHAP makes that understanding legible without a single line of ML jargon.
+        In Phase 1 and 2, a simplified rule-based explanation approximates the SHAP output using the top contributing formula components (ZRM, RSF, SI).
+      </div>
+      <div>
+        <span class="ml-tag" style="border-color:rgba(255,217,61,0.3);color:var(--yellow);background:rgba(255,217,61,0.08)">SHAP</span>
+        <span class="ml-tag" style="border-color:rgba(255,217,61,0.3);color:var(--yellow);background:rgba(255,217,61,0.08)">XGBoost</span>
+        <span class="ml-tag" style="border-color:rgba(255,217,61,0.3);color:var(--yellow);background:rgba(255,217,61,0.08)">Phase 3</span>
+        <span class="ml-tag" style="border-color:rgba(255,217,61,0.3);color:var(--yellow);background:rgba(255,217,61,0.08)">Rule-based approximation in Ph.1&ndash;2</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TAB 5: PERSONA
+     FIX: Added evening-window 65% earnings insight from README.
+     FIX: Added product design implication table (why each design decision follows
+          from persona realities, per README "What this means for our product design").
+     FIX: Added weekly earnings breakdown table from README.
+════════════════════════════════════════════════ -->
+<div id="tab-persona" class="screen">
+  <div class="section">
+    <div class="section-label">Persona</div>
+    <div class="section-title">The Blinkit / Zepto Warrior</div>
+
+    <!-- Karthik's story -->
+    <div class="story-box" style="margin-bottom:28px">
+      <div class="story-text">
+        It was the second week of October 2024. Northeast Monsoon hit Anna Nagar hard &mdash; <strong>42mm of rain in 3 hours</strong> on a Tuesday evening. Karthik had already completed 6 deliveries by 5 PM, on track for a <strong>&#x20B9;680 day</strong>. By 5:45 PM, the Blinkit app showed zero active orders in his zone. Waterlogged streets had triggered dark store dispatch suspension. He waited under a petrol bunk roof until 8 PM. Nothing. Then again Wednesday &mdash; same story. In five working days that week, Karthik earned <strong>&#x20B9;1,140</strong> instead of his expected &#x20B9;3,200. He had &#x20B9;1,800 in rent due. He borrowed from his cousin.
+        <br><br>
+        <span class="highlight">GigGuard would have triggered automatically at the 3-hour rainfall mark and deposited &#x20B9;960 directly into his UPI wallet by 6:10 PM Tuesday. By Wednesday evening, another &#x20B9;960. His rent would have been covered before he asked for help.</span>
+      </div>
+      <div class="story-name" style="margin-top:18px">Karthik &middot; Blinkit Partner</div>
+      <div class="story-role">Anna Nagar, Chennai &middot; Age 27 &middot; 2.4 years on platform</div>
+    </div>
+
+    <!-- Two-window earnings structure — key persona insight from README -->
+    <div class="card" style="margin-bottom:20px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:14px">A Day in the Life: The Two-Window Structure</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px">
+        A Q-commerce partner's day is built around two demand peaks. The morning window (7&ndash;11 AM) captures household grocery and breakfast orders.
+        The evening window (5&ndash;10 PM) is significantly higher volume, accounting for approximately <strong style="color:var(--accent)">65% of daily earnings</strong>.
+        This asymmetry has a direct consequence: a disruption that hits at 5:30 PM does not cause a 50% income loss.
+        It causes a rider who earned &#x20B9;180 in the morning to earn &#x20B9;180 for the day instead of &#x20B9;650.
+        That is not an inconvenience. It is a rent payment that does not happen.
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <div style="font-size:12px;color:var(--text3);width:90px;flex-shrink:0">Morning (35%)</div>
+        <div class="progress-bar-outer" style="flex:1"><div class="progress-bar-inner green" style="width:35%"></div></div>
+        <div style="font-size:12px;color:var(--green);font-family:'Space Mono',monospace;width:60px;text-align:right">~&#x20B9;228</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <div style="font-size:12px;color:var(--text3);width:90px;flex-shrink:0">Evening (65%)</div>
+        <div class="progress-bar-outer" style="flex:1"><div class="progress-bar-inner orange" style="width:65%"></div></div>
+        <div style="font-size:12px;color:var(--accent2);font-family:'Space Mono',monospace;width:60px;text-align:right">~&#x20B9;422</div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">Based on &#x20B9;650 avg. daily earnings. A 5:30 PM disruption destroys the high-value window entirely.</div>
+    </div>
+
+    <!-- Earnings breakdown table from README -->
+    <div class="card" style="margin-bottom:20px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:14px">Earnings by City Tier</div>
+      <table>
+        <tr><th>City Tier</th><th>Daily Range</th><th>Weekly Range</th><th>Monthly Range</th></tr>
+        <tr>
+          <td style="color:var(--text)">Tier-1 (Chennai, Bengaluru)</td>
+          <td>&#x20B9;550 &ndash; &#x20B9;800</td>
+          <td style="color:var(--accent)">&#x20B9;3,850 &ndash; &#x20B9;5,600</td>
+          <td>&#x20B9;15,400 &ndash; &#x20B9;22,400</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text)">Tier-2 (Coimbatore, Mysuru)</td>
+          <td>&#x20B9;380 &ndash; &#x20B9;560</td>
+          <td style="color:var(--accent)">&#x20B9;2,660 &ndash; &#x20B9;3,920</td>
+          <td>&#x20B9;10,640 &ndash; &#x20B9;15,680</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Product design implications from README persona section -->
+    <div class="card" style="margin-bottom:20px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:14px">How Persona Realities Shape Product Decisions</div>
+      <table>
+        <tr><th>What the rider's life looks like</th><th>Product decision it forces</th></tr>
+        <tr>
+          <td style="color:var(--text2)">No savings buffer beyond 1&ndash;2 weeks. Fixed commitments (rent, EMI, school fees) don't move when income does.</td>
+          <td>Payout must arrive <em>before</em> the rider starts worrying about the shortfall. Sub-90-second disbursement is a product requirement, not a feature.</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2)">Riders think about weekly income, not monthly or annual risk. Premium timing must match mental accounting.</td>
+          <td>Premium deducted Monday 8 AM, before the week begins. AutoPay mandate — asking for active weekly payment causes drop-off.</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2)">94% of Q-commerce partners use mid-range Android exclusively. No desktop. Intermittent connectivity while on shift.</td>
+          <td>React Native mobile-first. AsyncStorage for offline policy caching. No web dashboard as primary interface.</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text2)">Onboarding during a break between deliveries. Riders have 3 minutes of attention, not 15.</td>
+          <td>Onboarding completes under 3 minutes. Camera Aadhaar scan + OTP. Any longer and the rider defers and never returns.</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Stats + community pool -->
+    <div class="grid-3" style="margin-bottom:28px">
+      <div class="card">
+        <div style="font-size:26px;margin-bottom:8px">&#x1F4B0;</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px">Daily Earnings</div>
+        <div style="font-size:12px;color:var(--text2)">&#x20B9;550&ndash;800/day (Tier-1)<br>&#x20B9;400&ndash;600/day (Tier-2)</div>
+      </div>
+      <div class="card">
+        <div style="font-size:26px;margin-bottom:8px">&#x23F0;</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px">Two Demand Windows</div>
+        <div style="font-size:12px;color:var(--text2)">7 AM&ndash;11 AM (35% income)<br>5 PM&ndash;10 PM (65% income)</div>
+      </div>
+      <div class="card">
+        <div style="font-size:26px;margin-bottom:8px">&#x1F6CD;&#xFE0F;</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px">Zero Mobility Buffer</div>
+        <div style="font-size:12px;color:var(--text2)">Tied to 1&ndash;3 km dark store radius. Cannot relocate during disruption unlike food delivery.</div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:8px">Innovations</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;margin-bottom:22px">Community Risk Pool &mdash; Neighbourhood Shield</div>
+    <div class="grid-2">
+      <div class="card">
+        <div style="font-size:26px;margin-bottom:10px">&#x1F3CA;</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:7px">How It Works</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">Every 50 riders in the same 2-km zone form an automatic Community Risk Pool. 8% of each weekly premium builds the shared reserve. In low-disruption weeks, <strong style="color:var(--green)">30% of unused reserves are returned</strong> as a premium credit. Riders have skin-in-the-game. Claims volatility in the central float is reduced because localised events draw from localised reserves.</div>
+      </div>
+      <div class="card">
+        <div style="font-size:26px;margin-bottom:10px">&#x1F4E6;</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:7px">Dark Store Dual-Signal</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">GigGuard cross-references the mock Zepto/Blinkit Order Management API. If rainfall threshold is crossed AND dark store order volume drops &gt;60%, payout confidence rises to <strong style="color:var(--accent)">0.97</strong>. We pay when riders actually lost income, not just when it rained. This same check also detects ring-level fraud: a spoofing syndicate cannot fake the dark store's order data.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TAB 6: STACK
+     FIX: Added three-path System Architecture section (onboarding, weekly repricing,
+          trigger-to-payout) from README.
+════════════════════════════════════════════════ -->
+<div id="tab-stack" class="screen">
+  <div class="section">
+    <div class="section-label">Architecture</div>
+    <div class="section-title">Tech Stack &amp; System Architecture</div>
+    <div class="grid-2">
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:14px">Full Stack</div>
+        <div class="tech-item">
+          <div class="tech-icon">&#x1F4F1;</div>
+          <div>
+            <div class="tech-name">React Native (Expo SDK 51)</div>
+            <div class="tech-desc">Cross-platform Android/iOS &middot; native GPS + accelerometer + gyroscope via Expo Sensors &middot; UPI AutoPay mandate &middot; push notifications &middot; AsyncStorage offline caching</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">&#x2699;&#xFE0F;</div>
+          <div>
+            <div class="tech-name">FastAPI (Python 3.11)</div>
+            <div class="tech-desc">Async-first &middot; same language as ML model serving (no Node/Python bridge) &middot; background task scheduling for nightly ingestion + Sunday repricing &middot; REST endpoints for all rider-facing operations</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">&#x1F9E0;</div>
+          <div>
+            <div class="tech-name">LightGBM &middot; XGBoost &middot; PyTorch LSTM</div>
+            <div class="tech-desc">Phase 1&ndash;2: LightGBM (~15ms) for premium inference &middot; Phase 3: XGBoost + SHAP for explainability &middot; Unidirectional LSTM for 7-day disruption forecasting &middot; Isolation Forest for fraud detection</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">&#x1F5C4;&#xFE0F;</div>
+          <div>
+            <div class="tech-name">PostgreSQL 16 + Redis 7</div>
+            <div class="tech-desc">PostgreSQL: ACID compliance for riders, policies, trigger events, payouts, feature vectors &middot; Redis pub/sub for real-time trigger event streaming from monitor to payout consumer</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">&#x1F326;&#xFE0F;</div>
+          <div>
+            <div class="tech-name">OpenWeatherMap &middot; IMD &middot; CPCB &middot; TomTom (mock)</div>
+            <div class="tech-desc">Weather + AQI + traffic &mdash; all free tier APIs &middot; TomTom mocked in Phase 1&ndash;2 with JSON server &middot; NDMA alert feed mocked similarly</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">&#x1F4B8;</div>
+          <div>
+            <div class="tech-name">Razorpay Test Mode</div>
+            <div class="tech-desc">UPI AutoPay mandate for weekly premium deduction &middot; Razorpay Payout API for instant UPI disbursement simulation &middot; sandbox only in Phase 1&ndash;2</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">&#x1F680;</div>
+          <div>
+            <div class="tech-name">Render + Expo EAS</div>
+            <div class="tech-desc">Free tier backend + ML inference hosting on Render &middot; Expo Application Services for Android APK builds &middot; adequate for Phase 1&ndash;2 demo scale</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">&#x1F52C;</div>
+          <div>
+            <div class="tech-name">MLflow + SHAP</div>
+            <div class="tech-desc">MLflow for reproducible ML experiment tracking and weekly retrain version control &middot; SHAP for production explainability layer in Phase 3</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <!-- System Architecture — three runtime paths from README -->
+        <div class="card" style="margin-bottom:14px">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:14px">System Architecture &mdash; Three Runtime Paths</div>
+
+          <div style="margin-bottom:16px">
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:6px">PATH 1: ONBOARDING</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.7">
+              React Native app &rarr; FastAPI (Aadhaar mock + rider ID validation) &rarr; PostgreSQL rider record created &rarr; feature engineering pipeline runs for new rider &rarr; LightGBM inference endpoint &rarr; risk score + initial premium quote returned to app <em style="color:var(--text3)">(target: &lt;4 seconds)</em>
+            </div>
+          </div>
+          <div class="calc-divider"></div>
+          <div style="margin-bottom:16px;margin-top:14px">
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--yellow);letter-spacing:1px;margin-bottom:6px">PATH 2: WEEKLY REPRICING</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.7">
+              Sunday 11 PM: FastAPI background task &rarr; LSTM forecast for all active pin-code clusters &rarr; zone risk scores updated from latest IMD quarterly data &rarr; feature vectors recomputed for all active riders &rarr; LightGBM batch inference &rarr; new <code style="font-family:'Space Mono',monospace;font-size:10px;background:var(--panel2);padding:1px 4px;border-radius:2px">weekly_premium</code> written to policy table &rarr; Monday push notifications dispatched 30 min before deduction
+            </div>
+          </div>
+          <div class="calc-divider"></div>
+          <div style="margin-top:14px">
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;margin-bottom:6px">PATH 3: TRIGGER TO PAYOUT</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.7">
+              15-min poller &rarr; threshold breach &rarr; dark store mock API query &rarr; dual-source confirmed &rarr; Redis <code style="font-family:'Space Mono',monospace;font-size:10px;background:var(--panel2);padding:1px 4px;border-radius:2px">trigger_event</code> published &rarr; FastAPI consumer fetches affected policyholders from PostgreSQL &rarr; Coherence Score computed per rider &rarr; clean: Razorpay Payout API call &rarr; UPI credit <em style="color:var(--text3)">(target: &lt;15 seconds Redis-to-credit)</em>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roadmap -->
+        <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:14px">Development Roadmap</div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot done">&#x2713;</div>
+          <div class="roadmap-content">
+            <div class="roadmap-date">WEEK 1 &middot; Mar 4&ndash;10</div>
+            <div class="roadmap-title">Foundation</div>
+            <div class="roadmap-items">Persona research &middot; 3 Blinkit partner interviews, Chennai &middot; Premium formula finalised &middot; Trigger thresholds validated vs. IMD 2019&ndash;2024 &middot; GitHub repo + project board &middot; React Native scaffold &middot; FastAPI + PostgreSQL schema &middot; API integrations (Weather, CPCB, TomTom mock)</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot done">&#x2713;</div>
+          <div class="roadmap-content">
+            <div class="roadmap-date">WEEK 2 &middot; Mar 11&ndash;20</div>
+            <div class="roadmap-title">Prototype + Adversarial Defense</div>
+            <div class="roadmap-items">Onboarding screens &middot; Risk Quiz + LightGBM score endpoint &middot; Dynamic premium display &middot; Razorpay UPI AutoPay &middot; Mock trigger simulator &middot; Payout animation flow &middot; Coherence Score engine (Expo Sensors) &middot; Provisional payout workflow &middot; Ring-detection layer &middot; 6-hour seasoning window &middot; README + demo video</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot">2</div>
+          <div class="roadmap-content">
+            <div class="roadmap-date">PHASE 2 &middot; Mar 21&ndash;Apr 4</div>
+            <div class="roadmap-title">Live Engine</div>
+            <div class="roadmap-items">Live trigger engine with real API polling &middot; Razorpay real payout integration &middot; Full Isolation Forest + Coherence Score pipeline &middot; Community Risk Pool logic &middot; LSTM training on IMD + CPCB public data &middot; Regulatory partner outreach</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-dot">3</div>
+          <div class="roadmap-content">
+            <div class="roadmap-date">PHASE 3 &middot; Post-Hackathon</div>
+            <div class="roadmap-title">Scale + Compliance</div>
+            <div class="roadmap-items">IRDAI Micro-Insurance distribution licence &middot; XGBoost + SHAP production explainability &middot; Reinsurance backstop &middot; Tier-2 city expansion &middot; Live dark store API integrations &middot; GigGuard Gold loyalty programme</div>
+          </div>
+        </div>
+
+        <!-- Market numbers -->
+        <div class="card" style="margin-top:10px">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:12px">Market Opportunity</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="text-align:center;padding:11px;background:var(--panel2);border-radius:8px">
+              <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--accent)">1.8M</div>
+              <div style="font-size:10px;color:var(--text3)">Delivery partners by 2026</div>
+            </div>
+            <div style="text-align:center;padding:11px;background:var(--panel2);border-radius:8px">
+              <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--green)">&#x20B9;50Cr+</div>
+              <div style="font-size:10px;color:var(--text3)">Annual premium market (12% penetration)</div>
+            </div>
+            <div style="text-align:center;padding:11px;background:var(--panel2);border-radius:8px">
+              <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--yellow)">&#x20B9;8.4Cr</div>
+              <div style="font-size:10px;color:var(--text3)">Income stabilised annually (10K riders)</div>
+            </div>
+            <div style="text-align:center;padding:11px;background:var(--panel2);border-radius:8px">
+              <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--accent2)">~70%</div>
+              <div style="font-size:10px;color:var(--text3)">Loss ratio, peak monsoon &mdash; commercially viable</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TAB 7: ADVERSARIAL DEFENSE (NEW)
+     Required by Market Crash scenario.
+     Covers all three mandated points:
+       1. Differentiation (Coherence Score table)
+       2. Ring detection data points
+       3. UX balance / provisional payout workflow
+════════════════════════════════════════════════ -->
+<div id="tab-adversarial" class="screen">
+  <div class="section">
+    <div class="section-label red">Market Crash Response &mdash; Phase 1 Pivot</div>
+    <div class="section-title">Adversarial Defense &amp; Anti-Spoofing Strategy</div>
+
+    <div class="crisis-banner">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--red)">Confirmed Threat: Coordinated GPS-Spoofing Syndicate</div>
+      <p>
+        A sophisticated syndicate of 500 delivery workers in a tier-1 city successfully exploited a competing beta parametric platform.
+        Organising via Telegram, they used advanced GPS-spoofing apps to fake their locations inside red-alert weather zones while sitting safely at home,
+        triggering mass false payouts and draining the liquidity pool.
+        Simple GPS coordinate verification is officially obsolete.
+        GigGuard's response is documented in full below.
+      </p>
+    </div>
+
+    <div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:28px;padding:16px 20px;background:var(--panel);border-radius:var(--radius)">
+      <strong style="color:var(--text)">Core Insight:</strong> A GPS coordinate is a claim, not evidence.
+      It tells us where a phone's software believes it is located. It does not tell us whether the phone is in a rider's hand in a flooded street or on a table running a spoofing app.
+      The difference is detectable — but only by requiring the GPS signal to be <strong style="color:var(--accent)">coherent with the physical and behavioural context</strong> that genuine field presence produces.
+      GigGuard does not attempt to catch GPS spoofing by verifying GPS. It catches it by checking that GPS is consistent with everything else.
+    </div>
+
+    <!-- 1. DIFFERENTIATION -->
+    <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;margin-bottom:16px">
+      1. The Differentiation: Coherence Score
+    </div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px">
+      For every claim event, GigGuard computes a <strong style="color:var(--accent)">Coherence Score (0&ndash;1)</strong> across the signal dimensions below.
+      No single dimension flags a claim in isolation. Only a weighted aggregate of multiple low-coherence signals triggers escalation.
+      Score &gt;0.65: clean payout. Score 0.35&ndash;0.65: Provisional Payout (50% instant). Score &lt;0.35: full freeze.
+    </p>
+    <div style="overflow-x:auto;margin-bottom:28px">
+      <table class="coherence-table">
+        <tr>
+          <th>Signal Dimension</th>
+          <th>Genuinely Stranded Rider</th>
+          <th>Home-Based GPS Spoofer</th>
+          <th>Weight</th>
+        </tr>
+        <tr>
+          <td style="color:var(--text)">Accelerometer variance</td>
+          <td>Irregular micro-vibrations from road surface, rain, sheltering movement</td>
+          <td>Near-zero variance &mdash; stationary device on a flat surface</td>
+          <td><span class="badge badge-red">High</span></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text)">Gyroscope readings</td>
+          <td>Frequent orientation shifts as rider handles phone and changes posture</td>
+          <td>Flat, consistent orientation &mdash; phone lying still</td>
+          <td><span class="badge badge-red">High</span></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text)">GPS fix quality (HDOP)</td>
+          <td style="color:var(--accent2)">Degraded: rain causes multipath interference, elevated HDOP</td>
+          <td style="color:var(--yellow)">Clean, high-precision coordinates &mdash; spoofing apps inject perfect fixes. <strong>This inversion is a primary indicator.</strong></td>
+          <td><span class="badge badge-red">High</span></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text)">Cell network signal strength</td>
+          <td>Degraded and fluctuating &mdash; heavy rain attenuates cell signal physically</td>
+          <td>Strong and stable &mdash; home WiFi or full indoor bars</td>
+          <td><span class="badge badge-yellow">Medium</span></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text)">Battery drain rate</td>
+          <td>Elevated: screen on, GPS polling active, data retrying on degraded network</td>
+          <td>Normal or on charge &mdash; stable home power consumption</td>
+          <td><span class="badge badge-yellow">Medium</span></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text)">App foreground/background state</td>
+          <td>Active: rider checking order queue, interacting with app</td>
+          <td>Idle: screen off or app backgrounded for extended period</td>
+          <td><span class="badge badge-yellow">Medium</span></td>
+        </tr>
+        <tr>
+          <td style="color:var(--text)">Zone familiarity score</td>
+          <td>Claimed pin code appears in rider's established 90-day GPS history</td>
+          <td>Claimed pin code is outside established delivery corridor</td>
+          <td><span class="badge badge-green">Standard</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- 2. RING DETECTION DATA POINTS -->
+    <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;margin-bottom:8px">
+      2. The Data: Detecting a Coordinated Fraud Ring
+    </div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px">
+      Individual spoofing is hard to scale invisibly. A coordinated ring of 50&ndash;500 riders produces
+      <strong style="color:var(--text)">statistical anomalies at the zone level</strong> that are detectable independently of any individual rider's Coherence Score.
+    </p>
+    <div style="margin-bottom:28px">
+      <div class="ring-item">
+        <div class="ring-item-title">Claim Surge Velocity</div>
+        <div class="ring-item-desc">Genuine disruptions produce a staggered claim curve: riders gradually realise they cannot work and trigger over a 40&ndash;90 minute window after threshold breach. Coordinated fraud produces a sharp, near-simultaneous spike because the coordinator sent a single "claim now" Telegram message. GigGuard monitors claim arrival rate per pin-code cluster. If &gt;15% of active policyholders in a single pin code file claims within a 20-minute window, the entire batch enters elevated scrutiny regardless of individual coherence scores.</div>
+      </div>
+      <div class="ring-item">
+        <div class="ring-item-title">Cross-Rider Environmental Coherence Mismatch</div>
+        <div class="ring-item-desc">In a genuine zone-wide disruption, all riders in the affected area show degraded network signal, poor GPS fix quality, and similar accelerometer inactivity as they shelter. If a cluster of 30 riders all show clean network, high GPS quality, and zero accelerometer variance while simultaneously claiming weather entrapment, the population-level signal is inconsistent with what the environment should produce. This cross-rider check operates on the zone aggregate, not individual riders.</div>
+      </div>
+      <div class="ring-item">
+        <div class="ring-item-title">Dark Store Order-Count Cross-Check</div>
+        <div class="ring-item-desc">If 40 riders in a zone claim weather-induced zero income but the dark store's mock order-count API shows only a 15% drop in dispatch volume, the claim population is inconsistent with platform-side ground truth. No genuine mass disruption leaves the dark store nearly operational while every rider claims they cannot work. A confirmed divergence triggers an immediate ring-level investigation and withholds all pending payouts from that zone until reviewed.</div>
+      </div>
+      <div class="ring-item">
+        <div class="ring-item-title">6-Hour Policy Seasoning Window</div>
+        <div class="ring-item-desc">Genuine riders purchase coverage week-to-week. A coordinated ring needs to sign up before the event and file claims during it. GigGuard applies a 6-hour seasoning window: any policy activated within 6 hours of a published IMD red alert for the rider's pin code is ineligible for payout under that same event. Multi-week policyholders are completely unaffected. This closes the most straightforward ring entry vector without touching a single genuine user.</div>
+      </div>
+      <div class="ring-item">
+        <div class="ring-item-title">Device and Registration Clustering</div>
+        <div class="ring-item-desc">During onboarding, GigGuard passively records device fingerprint components (OS version, screen resolution, install timestamp). A cluster of new registrations sharing similar fingerprint characteristics, registering within 48 hours of each other, and concentrating in the same pin code matches known syndicate onboarding behaviour. These accounts are flagged for elevated monitoring before any claim is made.</div>
+      </div>
+      <div class="ring-item">
+        <div class="ring-item-title">Claim Velocity Before a Known Weather Event</div>
+        <div class="ring-item-desc">A surge in new policy signups in a specific pin code within 6 hours of a published IMD red alert is a strong syndicate precursor signal — the coordinator informed the group and they rushed to buy coverage. This signal is monitored continuously and feeds directly into the seasoning window decision logic above.</div>
+      </div>
+    </div>
+
+    <!-- 3. UX BALANCE -->
+    <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;margin-bottom:8px">
+      3. The UX Balance: Protecting Honest Riders
+    </div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px">
+      The worst outcome for GigGuard is not a successful fraud. It is Karthik, phone battery at 11%, GPS degraded by rain, sitting under a petrol bunk in a flooded street, having his payout frozen because our system read his genuine distress as suspicious.
+      The defense is calibrated with a deliberate asymmetry:
+      <strong style="color:var(--accent)">we are designed to be slow to freeze and fast to release.</strong>
+      We accept a higher fraud loss rate at the margins before we accept false positives on legitimate claims.
+    </p>
+
+    <div class="card" style="margin-bottom:20px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:16px">Provisional Payout Workflow (Coherence Score 0.35&ndash;0.65)</div>
+      <div class="prov-steps">
+        <div class="prov-step">
+          <div class="prov-step-num yellow">1</div>
+          <div>
+            <div class="prov-step-title">Immediate Partial Disbursement</div>
+            <div class="prov-step-desc"><strong style="color:var(--yellow)">50% of the calculated payout is credited to the rider's UPI wallet within 90 seconds</strong> of the flag being raised. A genuine rider in distress is never left with zero. The remaining 50% is held in escrow pending passive resolution.</div>
+          </div>
+        </div>
+        <div class="prov-step">
+          <div class="prov-step-num">2</div>
+          <div>
+            <div class="prov-step-title">Passive 4-Hour Observation Window</div>
+            <div class="prov-step-desc">The system continues collecting sensor and network data silently for 4 hours. No action is required from the rider. In most genuine cases, coherence signals self-correct naturally as the rider moves, network stabilises, and app activity resumes.</div>
+          </div>
+        </div>
+        <div class="prov-step">
+          <div class="prov-step-num green">3</div>
+          <div>
+            <div class="prov-step-title">Auto-Release on Signal Recovery</div>
+            <div class="prov-step-desc">If Coherence Score recovers above 0.65 within the 4-hour window, the held 50% is released automatically. The rider receives one push notification: "Your full payout has been confirmed and credited." No form. No appeal. Nothing to do.</div>
+          </div>
+        </div>
+        <div class="prov-step">
+          <div class="prov-step-num">4</div>
+          <div>
+            <div class="prov-step-title">Optional Soft Verification Prompt (Edge Cases Only)</div>
+            <div class="prov-step-desc">If signals remain ambiguous after 4 hours, the app sends one optional prompt: "A quick 10-second video of your surroundings can help us release your remaining payout faster." This is entirely optional. Declining routes to human review instead. There is no penalty for declining.</div>
+          </div>
+        </div>
+        <div class="prov-step">
+          <div class="prov-step-num green">5</div>
+          <div>
+            <div class="prov-step-title">Human Review with 24-Hour SLA</div>
+            <div class="prov-step-desc">A claims analyst reviews the full signal record. Account standing, zone familiarity, earnings history, and prior claim record all weight toward approval. First-time flagged riders with clean prior history receive a strong default toward approval. The benefit of the doubt is structural, not discretionary.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="never-do">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--green)">What GigGuard Never Does</div>
+      <ul>
+        <li>Auto-rejects a claim based solely on a low Coherence Score</li>
+        <li>Requires a rider to prove they were present before receiving any payout</li>
+        <li>Penalises future premiums for a single flagged claim that was ultimately approved</li>
+        <li>Withholds 100% of a payout while an investigation is open for scores above 0.35</li>
+        <li>Treats network degradation in bad weather as a spoofing signal (it is the opposite)</li>
+        <li>Uses a single sensor reading as the sole basis for any decision</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════ -->
+<footer>
+  Built for India's gig workers &mdash; because their hustle deserves a safety net.<br>
+  <strong>Guidewire DEVTrails 2026</strong> &middot; Phase 1 Submission &middot; Team GigGuard AI<br>
+  <span style="margin-top:5px;display:block">Phase 1&ndash;2 operate in sandbox only. No real premiums collected. No real payouts made.</span>
+</footer>
+
+<script>
+  // ─────────────────────────────────────────────
+  // TAB NAVIGATION
+  // FIX: Replaced fragile substring matching (.includes(name.substring(0,4)))
+  //      with explicit data-tab attribute matching. Works correctly for all 7 tabs
+  //      including "adversarial" and "persona" which previously matched unreliably.
+  // ─────────────────────────────────────────────
+  function showTab(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    const screen = document.getElementById('tab-' + name);
+    if (screen) screen.classList.add('active');
+    const tab = document.querySelector('.nav-tab[data-tab="' + name + '"]');
+    if (tab) tab.classList.add('active');
+    // Scroll to top on tab change for better UX on mobile
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ─────────────────────────────────────────────
+  // PREMIUM CALCULATOR
+  // FIX: Max payout formula corrected.
+  //   README states: Base_Premium = Rs.35 covers Rs.1,000 max payout at ~3.5% loss ratio.
+  //   Therefore: max_payout = premium / 0.035 = premium * 28.57
+  //   Previous code used: premium * 27 or premium * 28 (arbitrary, inconsistent with README).
+  //   Now: max_payout is derived directly from the 3.5% actuarial loss ratio assumption.
+  //   Rounded to nearest Rs.50 for display clarity, matching the README worked examples.
+  // ─────────────────────────────────────────────
+  const LOSS_RATIO_PCT = 0.035; // 3.5% as stated in README formula
+
+  function calcPremium() {
+    const base   = 35;
+    const zrm    = parseFloat(document.getElementById('zone-select').value);
+    const score  = parseInt(document.getElementById('score-slider').value);
+    const si     = parseFloat(document.getElementById('season-select').value);
+
+    // RSF formula from README: RSF = 0.85 + (RiderScore / 100) * 0.30
+    const rsf    = 0.85 + (score / 100) * 0.30;
+    const premiumExact = base * zrm * rsf * si;
+    const premium = Math.round(premiumExact);
+
+    // Correct max payout: premium / loss_ratio (actuarially derived, not arbitrary multiplier)
+    const maxPayoutExact = premium / LOSS_RATIO_PCT;
+    // Round to nearest 50 for clean display
+    const maxPayout = Math.round(maxPayoutExact / 50) * 50;
+    const ratio = (maxPayout / premium).toFixed(1);
+
+    document.getElementById('zrm-display').textContent     = zrm.toFixed(2);
+    document.getElementById('rsf-display').textContent     = rsf.toFixed(2);
+    document.getElementById('si-display').textContent      = si.toFixed(2);
+    document.getElementById('premium-amount').textContent  = '\u20B9' + premium;
+    document.getElementById('premium-coverage').textContent =
+      'Max payout: \u20B9' + maxPayout.toLocaleString('en-IN') +
+      ' \u00B7 Coverage ratio: ' + ratio + '\u00D7';
+  }
+  calcPremium();
+
+  // ─────────────────────────────────────────────
+  // SIMULATOR
+  // FIX 1: AQI trigger now demonstrates Provisional Payout flow (Coherence Score 0.35–0.65)
+  //        as described in README and Adversarial Defense section. Simulator now shows
+  //        both clean and provisional payout paths, not just clean.
+  // FIX 2: resetSim now correctly zeroes triggerCount and totalPayout module-level vars.
+  // FIX 3: Terminal log references Coherence Score system, not just Isolation Forest alone.
+  // ─────────────────────────────────────────────
+  const TRIGGERS = {
+    rain:  {
+      name: 'Heavy Rainfall', val: '47.3 mm/3hr',
+      payout: 480, time: '00:47', flow: 'clean',
+      coherenceScore: 0.81, isolationScore: 0.11,
+      env: 'OpenWeatherMap rolling 3hr sum: 47.3mm — EXCEEDS 25mm threshold. Zone geofence PIN 600040 matched.',
+      platform: 'Dark store mock API: order dispatch \u221272% in zone. Dual-source: CONFIRMED.',
+      conditions: { rain: '47.3 mm/hr', color: 'red' }
+    },
+    aqi:   {
+      // AQI intentionally uses provisional flow to demonstrate flagged-claim UX
+      name: 'Severe AQI', val: 'AQI: 284',
+      payout: 320, time: '01:02', flow: 'provisional',
+      coherenceScore: 0.48, isolationScore: 0.54,
+      env: 'CPCB station Alandur: AQI 284 — EXCEEDS 250 threshold. Sustained 2.5 hours.',
+      platform: 'Dark store mock API: order dispatch \u221248%. Dual-source: CONFIRMED. Note: borderline drop (threshold 60%).',
+      note: 'Coherence Score 0.48 (in 0.35\u20130.65 ambiguous band): accelerometer variance LOW (rider may be sheltering indoors), network signal STABLE. Isolation Forest score 0.54 \u2014 elevated but below hard threshold.',
+      conditions: { aqi: '284', color: 'red' }
+    },
+    heat:  {
+      name: 'Extreme Heat', val: '43.7\u00B0C feels-like',
+      payout: 290, time: '00:58', flow: 'clean',
+      coherenceScore: 0.76, isolationScore: 0.09,
+      env: 'Heat Index = f(42\u00B0C dry-bulb, 78% humidity) = 43.7\u00B0C. EXCEEDS 42\u00B0C. Duration: 110 min.',
+      platform: 'Dark store mock API: order dispatch \u221261%. Dual-source: CONFIRMED.',
+      conditions: { heat: '43.7\u00B0C', color: 'red' }
+    },
+    flood: {
+      name: 'Zone Flooding', val: 'Speed: 3.1 km/h',
+      payout: 560, time: '00:39', flow: 'clean',
+      coherenceScore: 0.88, isolationScore: 0.08,
+      env: 'TomTom avg. road speed Anna Nagar: 3.1 km/h — BELOW 5 km/h threshold. Duration: 51 min. IMD: 18mm concurrent.',
+      platform: 'Dark store mock API: order dispatch \u221278%. Dual-source: CONFIRMED.',
+      conditions: { traffic: '3.1 km/h', color: 'red' }
+    },
+    ndma:  {
+      name: 'NDMA Flash Alert', val: 'RED ALERT issued',
+      payout: 620, time: '00:28', flow: 'clean',
+      coherenceScore: 0.91, isolationScore: 0.07,
+      env: 'NDMA webhook: RED flood alert issued — PIN 600040. Highest-confidence tier trigger.',
+      platform: 'Dual-source: NDMA + TomTom road velocity \u221291%. CONFIRMED.',
+      conditions: {}
+    },
+    bandh: {
+      name: 'Bandh / Curfew', val: 'Movement banned 4hr',
+      payout: 540, time: '01:15', flow: 'clean',
+      coherenceScore: 0.79, isolationScore: 0.13,
+      env: 'NLP classifier: "Bandh" keyword cluster detected in 3 civic news feeds. Confidence: 0.93.',
+      platform: 'Dark store mock API: platform order anomaly \u221288%. Cross-validated. Dual-source: CONFIRMED.',
+      conditions: {}
+    }
+  };
+
+  // Module-level counters — FIX: reset() correctly zeroes these
+  let simRunning   = false;
+  let triggerCount = 0;
+  let totalPayout  = 0;
+  let timerInterval = null;
+  let startTime     = null;
+
+  function ts() {
+    return new Date().toTimeString().split(' ')[0];
+  }
+
+  function log(msg, cls = '') {
+    const el = document.getElementById('terminal-log');
+    el.innerHTML += '<div class="t-line ' + cls + '"><span class="ts">' + ts() + '</span>' + msg + '</div>';
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function fireTrigger(type) {
+    if (simRunning) return;
+    simRunning = true;
+
+    // Hide both payout banners at start of new run
+    document.getElementById('payout-banner-clean').classList.remove('show');
+    document.getElementById('payout-banner-prov').classList.remove('show');
+
+    const d    = TRIGGERS[type];
+    const card = document.getElementById('tc-' + type);
+    card.classList.add('armed');
+
+    // Update conditions display for relevant triggers
+    if (d.conditions.rain)    { setCondition('rain-val',    d.conditions.rain,    d.conditions.color); }
+    if (d.conditions.aqi)     { setCondition('aqi-val',     d.conditions.aqi,     d.conditions.color); }
+    if (d.conditions.heat)    { setCondition('heat-val',    d.conditions.heat,    d.conditions.color); }
+    if (d.conditions.traffic) { setCondition('traffic-val', d.conditions.traffic, d.conditions.color); }
+
+    log('\u26A1 TRIGGER DETECTED: ' + d.name + ' \u2014 ' + d.val, 'warn');
+
+    setTimeout(() => {
+      log(d.env, '');
+      log('Initiating dual-source validation (environmental API + dark store order-count)...', 'info');
+    }, 600);
+
+    setTimeout(() => {
+      log('\u2713 Environmental API confirmed.', 'success');
+      log(d.platform, '');
+    }, 1500);
+
+    setTimeout(() => {
+      log('Running Coherence Score engine (GPS + accelerometer + gyroscope + network + HDOP)...', 'info');
+    }, 2400);
+
+    setTimeout(() => {
+      log('Isolation Forest anomaly score: ' + d.isolationScore.toFixed(2) +
+          (d.isolationScore < 0.72 ? ' \u2014 below 0.72 hard threshold' : ' \u2014 ELEVATED'), 'success');
+
+      if (d.flow === 'provisional') {
+        // AQI trigger: show ambiguous coherence score path
+        log(d.note, 'warn');
+        log('Coherence Score: ' + d.coherenceScore.toFixed(2) +
+            ' \u2014 in ambiguous band (0.35\u20130.65). Entering PROVISIONAL PAYOUT state.', 'prov');
+      } else {
+        log('Coherence Score: ' + d.coherenceScore.toFixed(2) +
+            ' \u2014 above 0.65 clean threshold. All signal dimensions coherent.', 'success');
+      }
+    }, 3400);
+
+    setTimeout(() => {
+      card.classList.remove('armed');
+      card.classList.add(d.flow === 'provisional' ? 'provisional' : 'fired');
+
+      if (d.flow === 'provisional') {
+        log('PROVISIONAL PAYOUT: releasing 50% (\u20B9' + Math.round(d.payout * 0.5) +
+            ') instantly. \u20B9' + Math.round(d.payout * 0.5) + ' held in escrow.', 'prov');
+        log('4-hour passive observation window started. No rider action required.', '');
+        startTime = Date.now();
+        timerInterval = setInterval(updateTimer, 100);
+      } else {
+        log('Auto-raising claim. Expected income loss computed for active shift window.', 'info');
+        log('\u1F4B8 INITIATING UPI PAYOUT: \u20B9' + d.payout + ' \u2192 UPI karthik.b****@oksbi', 'success');
+        startTime = Date.now();
+        timerInterval = setInterval(updateTimer, 100);
+      }
+    }, 4400);
+
+    const completionDelay = d.flow === 'provisional' ? 6500 : 7000;
+
+    setTimeout(() => {
+      clearInterval(timerInterval);
+      triggerCount++;
+      totalPayout += (d.flow === 'provisional' ? Math.round(d.payout * 0.5) : d.payout);
+      document.getElementById('trigger-count').textContent = triggerCount;
+      document.getElementById('total-payout').textContent = '\u20B9' + totalPayout;
+
+      if (d.flow === 'provisional') {
+        log('\u2705 PROVISIONAL PAYOUT COMPLETE: \u20B9' + Math.round(d.payout * 0.5) +
+            ' credited in ' + d.time + '. Rider notified via push.', 'prov');
+        log('Remaining \u20B9' + Math.round(d.payout * 0.5) +
+            ' auto-releases if Coherence Score recovers within 4hr. Passive monitoring active.', '');
+        document.getElementById('payout-amount-prov').textContent = '\u20B9' + Math.round(d.payout * 0.5);
+        document.getElementById('payout-banner-prov').classList.add('show');
+      } else {
+        log('\u2705 PAYOUT COMPLETE: \u20B9' + d.payout +
+            ' credited in ' + d.time + '. Rider notified via push.', 'success');
+        log('Policy: event logged. Next week premium recalculation queued for Sunday 11PM.', '');
+        document.getElementById('payout-amount-clean').textContent = '\u20B9' + d.payout;
+        document.getElementById('payout-banner-clean').classList.add('show');
+      }
+
+      simRunning = false;
+    }, completionDelay);
+  }
+
+  function setCondition(id, value, color) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.textContent = value;
+      el.style.color = color === 'red' ? 'var(--red)' : 'var(--green)';
+    }
+  }
+
+  function updateTimer() {
+    if (!startTime) return;
+    const elapsed = Date.now() - startTime;
+    const secs    = Math.floor(elapsed / 1000);
+    const mins    = Math.floor(secs / 60);
+    const dispSec = String(secs % 60).padStart(2, '0');
+    const dispMin = String(mins).padStart(2, '0');
+    // Update both timer elements (only the visible banner matters, but updating both is harmless)
+    const timerEl = document.getElementById('payout-timer');
+    if (timerEl) timerEl.textContent = dispMin + ':' + dispSec;
+  }
+
+  // FIX: resetSim now correctly resets module-level counters to zero.
+  // Previous version left triggerCount and totalPayout accumulated across resets.
+  function resetSim() {
+    simRunning   = false;
+    triggerCount = 0;   // FIX: was missing
+    totalPayout  = 0;   // FIX: was missing
+    clearInterval(timerInterval);
+    timerInterval = null;
+    startTime     = null;
+
+    document.querySelectorAll('.trigger-card').forEach(c => {
+      c.classList.remove('armed', 'fired', 'provisional');
+    });
+    document.getElementById('payout-banner-clean').classList.remove('show');
+    document.getElementById('payout-banner-prov').classList.remove('show');
+    document.getElementById('trigger-count').textContent    = '0';
+    document.getElementById('total-payout').textContent     = '\u20B9' + '0';
+    const timerEl = document.getElementById('payout-timer');
+    if (timerEl) timerEl.textContent = '00:00';
+
+    // Reset condition displays
+    setCondition('rain-val',    '8.2 mm/hr', 'green');
+    setCondition('aqi-val',     '142',        'green');
+    setCondition('heat-val',    '38.4\u00B0C','yellow');
+    setCondition('traffic-val', '34 km/h',   'green');
+
+    document.getElementById('terminal-log').innerHTML =
+      '<div class="t-line"><span class="ts">' + ts() + '</span>GigGuard monitoring engine reset \u2014 Anna Nagar zone (PIN 600040)</div>' +
+      '<div class="t-line success"><span class="ts">' + ts() + '</span>All 6 parametric monitors \u2713 HEALTHY</div>' +
+      '<div class="t-line"><span class="ts">' + ts() + '</span>Coherence Score engine \u2713 ACTIVE \u2014 collecting sensor baseline</div>' +
+      '<div class="t-line"><span class="ts">' + ts() + '</span>Waiting for threshold breach...</div>';
+  }
+</script>
+</body>
+</html>
