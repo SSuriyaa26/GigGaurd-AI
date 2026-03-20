@@ -502,8 +502,8 @@ Parametric automation means 90% of payouts require zero human intervention. Week
 | Item | Link |
 |---|---|
 | GitHub Repository | `[https://github.com/team-gigguard/gigguard-ai]` ** |
-| Phase 1 Demo Video | `[[YouTube unlisted link — added by March 20]](https://youtu.be/B1uT4dOuXXc)` |
-| Prototype | `[[Link to be added](https://giggaurdai.vercel.app/)]` |
+| Phase 1 Demo Video | `(https://youtu.be/B1uT4dOuXXc)` |
+| Prototype | `(https://giggaurdai.vercel.app/)` |
 
 Phase 2 (March 21 to April 4): live parametric trigger engine with real API polling, Razorpay payout integration with actual test-mode UPI disbursement, and the full Coherence Score pipeline running on real sensor data from the mobile app.
 
